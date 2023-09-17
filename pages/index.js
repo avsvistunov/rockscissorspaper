@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import {useEffect, useState} from "react";
+import {memo, useCallback, useEffect, useState} from "react";
 import Link from "next/link";
 import {MyStorage} from "../public/storage"
 import {EQUAL, LOSE, LOSE_MSG, WIN, WIN_MSG} from "../public/constants"
@@ -11,6 +11,10 @@ const random = (min, max) => {
     return Math.round(rand);
 }
 
+
+const randomFigure = () => {
+    return random(1, 3);
+}
 
 export default function Home() {
     const FIGURES = {
@@ -64,20 +68,21 @@ export default function Home() {
     // reset result when user changes own selected figure
     useEffect(() => setResult(''), [activeFigureId]);
 
-    const rArrowClick = () => {
+    const rArrowClick = useCallback(() => {
         if (activeFigureId === FIGURES.ROCK) {
             setActiveFigureId(FIGURES.SCISSORS);
         } else {
             setActiveFigureId(prevState => prevState + 1);
         }
-    };
-    const lArrowClick = () => {
+    }, [setActiveFigureId]);
+
+    const lArrowClick = useCallback(() => {
         if (activeFigureId === FIGURES.SCISSORS) {
             setActiveFigureId(FIGURES.ROCK);
         } else {
             setActiveFigureId(prevState => prevState - 1);
         }
-    };
+    }, [setActiveFigureId]);
 
     const makeDecision = () => {
         setOpponentFigureId(randomFigure());
@@ -88,11 +93,7 @@ export default function Home() {
         setActiveFigureId(randomFigure())
     }
 
-    const randomFigure = () => {
-        return random(1, 3);
-    }
-
-    const FigureArea = (props) => {
+    const FigureArea = memo((props) => {
         const selected = props.selected || -1;
         if (selected === -1) return (<>?</>);
         console.log(`render FigureArea for ${props.owner}`)
@@ -106,7 +107,7 @@ export default function Home() {
                      className={styles.figure + ' ' + (selected === 3 ? styles.active : '')}/>
             </>
         );
-    }
+    });
 
     return (
         <div className={styles.container}>
